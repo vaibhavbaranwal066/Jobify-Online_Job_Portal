@@ -1,30 +1,26 @@
 // src/components/JobCard.js
-import React from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
 import { FiMapPin, FiClock, FiBookmark } from "react-icons/fi";
 import { FaBriefcase } from "react-icons/fa";
-import { useJobs } from "../context/JobContext";
+import { JobContext } from "../context/JobContext";
 
-const JobCard = ({ job, onSave, onApply }) => {
-  const { onSaveJob, onApplyJob } = useJobs();
+const JobCard = ({ job }) => {
+  const { applyJob, saveJob } = useContext(JobContext);
 
-  // Save job handler (context + props)
-  const handleSave = () => {
-    if (onSave) onSave(job);
-    if (onSaveJob) onSaveJob(job.id);
+  const handleApply = () => {
+    applyJob(job); // ✅ Corrected function name
   };
 
-  // Apply job handler (context + props)
-  const handleApply = () => {
-    if (onApply) onApply(job);
-    if (onApplyJob) onApplyJob(job.id);
+  const handleSave = () => {
+    saveJob(job);
   };
 
   return (
     <motion.div
       layout
       whileHover={{ scale: 1.03, y: -6 }}
-      className="p-6 rounded-2xl shadow-lg bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-200 cursor-pointer"
+      className="p-6 rounded-2xl shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-200 cursor-pointer"
     >
       <div className="flex justify-between items-start gap-4">
         {/* LEFT SIDE - JOB DETAILS */}
@@ -56,7 +52,7 @@ const JobCard = ({ job, onSave, onApply }) => {
               <FiMapPin /> {job.location || "Remote"}
             </span>
             <span className="flex items-center gap-1">
-              <FiClock /> {job.postedAt || "2d"}
+              <FiClock /> {job.postedAt || "2d ago"}
             </span>
             <span className="flex items-center gap-1">
               <FaBriefcase /> {job.type || "Full-time"}
@@ -84,7 +80,7 @@ const JobCard = ({ job, onSave, onApply }) => {
             </button>
             <button
               onClick={handleSave}
-              className="px-3 py-2 rounded border border-gray-400 dark:border-gray-500 text-gray-800 dark:text-white/90 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
+              className="px-3 py-2 rounded border border-gray-400 dark:border-gray-500 text-gray-800 dark:text-white/90 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
             >
               <FiBookmark />
             </button>

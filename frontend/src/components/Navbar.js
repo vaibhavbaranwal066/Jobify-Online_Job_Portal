@@ -6,9 +6,6 @@ import {
   FiMenu,
   FiX,
   FiSearch,
-  FiBookmark,
-  FiBriefcase,
-  FiUsers,
   FiMoon,
   FiSun,
 } from "react-icons/fi";
@@ -26,15 +23,18 @@ const Navbar = ({ user, onLogin }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Load user role and theme
+  // ✅ Load user role + theme (merged & improved version)
   useEffect(() => {
     const storedRole = user?.role || localStorage.getItem("role") || "Candidate";
     setRole(storedRole);
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
+
+    const theme = dark ? "dark" : "light";
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+    localStorage.setItem("theme", theme);
   }, [user, dark]);
 
-  // Search handler
+  // --- Search Handler ---
   const handleSearch = (e) => {
     e.preventDefault();
     const query = q.trim();
@@ -42,17 +42,17 @@ const Navbar = ({ user, onLogin }) => {
     setOpen(false);
   };
 
-  // Logout
+  // --- Logout ---
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     navigate("/login");
   };
 
-  // Toggle theme
+  // --- Toggle Theme ---
   const toggleTheme = () => setDark((prev) => !prev);
 
-  // Role-based menus
+  // --- Role-based Menus ---
   const roleMenus = {
     Candidate: [
       { path: "/", label: "Home" },
@@ -61,7 +61,6 @@ const Navbar = ({ user, onLogin }) => {
       { path: "/applications", label: "My Applications" },
     ],
     Recruiter: [
-      { path: "/dashboard", label: "Dashboard" },
       { path: "/post", label: "Post Job" },
       { path: "/manage-jobs", label: "Manage Jobs" },
     ],
@@ -83,7 +82,7 @@ const Navbar = ({ user, onLogin }) => {
       transition={{ duration: 0.4 }}
     >
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
-        {/* Left section: Logo + Toggle */}
+        {/* --- Left section: Logo + Toggle --- */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setOpen(!open)}
@@ -106,11 +105,8 @@ const Navbar = ({ user, onLogin }) => {
           </Link>
         </div>
 
-        {/* Search Bar */}
-        <form
-          onSubmit={handleSearch}
-          className="hidden md:flex items-center flex-1 max-w-xl mx-4"
-        >
+        {/* --- Search Bar --- */}
+        <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-xl mx-4">
           <div className="flex items-center w-full bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
             <FiSearch className="text-gray-500 dark:text-gray-300 mr-2" />
             <input
@@ -129,7 +125,7 @@ const Navbar = ({ user, onLogin }) => {
           </div>
         </form>
 
-        {/* Right section: Links, Icons, Theme */}
+        {/* --- Right section: Links, Icons, Theme, Profile --- */}
         <div className="hidden md:flex items-center gap-5">
           {links.map((link) => (
             <NavLink
@@ -139,7 +135,7 @@ const Navbar = ({ user, onLogin }) => {
                 `font-semibold ${
                   isActive
                     ? "text-blue-600 dark:text-blue-400"
-                    : "text-gray-700 dark:text-gray-300 hover:text-blue-500"
+                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600"
                 }`
               }
             >
@@ -147,6 +143,23 @@ const Navbar = ({ user, onLogin }) => {
             </NavLink>
           ))}
 
+          {/* ✅ Recruiter Dashboard link */}
+          {user?.role === "recruiter" && (
+            <NavLink
+              to="/recruiter-dashboard"
+              className={({ isActive }) =>
+                `font-semibold ${
+                  isActive
+                    ? "text-blue-600 dark:text-blue-400"
+                    : "text-gray-700 dark:text-gray-300 hover:text-blue-600"
+                }`
+              }
+            >
+              Dashboard
+            </NavLink>
+          )}
+
+          {/* Notifications + Theme + Profile */}
           <button
             onClick={() => setShowNotif(!showNotif)}
             className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -157,6 +170,7 @@ const Navbar = ({ user, onLogin }) => {
           <button
             onClick={toggleTheme}
             className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Toggle theme"
           >
             {dark ? (
               <FiSun className="text-xl text-yellow-400" />
@@ -196,7 +210,7 @@ const Navbar = ({ user, onLogin }) => {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* --- Mobile Menu --- */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -232,6 +246,17 @@ const Navbar = ({ user, onLogin }) => {
                   {link.label}
                 </Link>
               ))}
+
+              {user?.role === "recruiter" && (
+                <Link
+                  to="/recruiter-dashboard"
+                  onClick={() => setOpen(false)}
+                  className="px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                >
+                  Dashboard
+                </Link>
+              )}
+
               <button
                 onClick={() => {
                   toggleTheme();
@@ -241,6 +266,7 @@ const Navbar = ({ user, onLogin }) => {
               >
                 Toggle Theme
               </button>
+
               {user ? (
                 <button
                   onClick={() => {
@@ -267,7 +293,7 @@ const Navbar = ({ user, onLogin }) => {
         )}
       </AnimatePresence>
 
-      {/* Notifications dropdown */}
+      {/* --- Notifications --- */}
       {showNotif && <Notifications />}
     </motion.nav>
   );
